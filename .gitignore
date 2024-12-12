@@ -49,3 +49,6 @@ viper_rl_data/datasets/
 viper_rl_data/checkpoints/
 
 wandb/
+
+viper_rl_data/policy_result/dmc_clen16_fskip4/cartpole_balance/checkpoint.ckpt
+viper_rl_data/policy_result/dmc_clen16_fskip4/cartpole_swingup/checkpoint.ckpt
