@@ -1,9 +1,9 @@
 # VIPER + VCPE (Visual-conditioned Positional Encoding)
 
 Our method adds the "Alibi + PPE" encoding method to the videoGPT model.
-Specifically, you can find our additional code, which is commented, in ./viper_rl/videogpt/models/transformer.py.
+Specifically, you can find our additional code, which is commented, in `./viper_rl/videogpt/models/transformer.py.`
 
-You can also find new results from the "VIPER + VCPE" model in ./viper_rl_data/policy_result.
+You can also find new results from the "VIPER + VCPE" model in `./viper_rl_data/policy_result.`
 
 Below is the original README content from VIPER.
 
