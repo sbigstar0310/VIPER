@@ -39,6 +39,14 @@ def main(argv=None):
   if config.reward_model != 'none':
       print(f'Loading reward model {config.reward_model}')
       from viper_rl.videogpt.reward_models import LOAD_REWARD_MODEL_DICT
+      
+      print(f'reward model is {LOAD_REWARD_MODEL_DICT[config.reward_model]}')
+      print(f'config.task {config.task}')
+      print(f'config.reward_model_compute_joint {config.reward_model_compute_joint}')
+      print(f'config.reward_model_batch_size {config.reward_model_batch_size}')
+      print(f'config.reward_model_batch_size {config.reward_model_batch_size}')
+      print(f'config.jax.reward_model_device {config.jax.reward_model_device}')
+
       reward_model = LOAD_REWARD_MODEL_DICT[config.reward_model](
         task=config.task,
         compute_joint=config.reward_model_compute_joint,

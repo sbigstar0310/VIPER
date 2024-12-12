@@ -341,6 +341,8 @@ class WorldModel(nj.Module):
         state = self.initial(len(data["is_first"]))
         report = {}
         report.update(self.loss(data, state, reference_data)[-1][-1])
+        print(f'dat[action].shape: {data["action"].shape}')
+
         context, _ = self.rssm.observe(
             self.encoder(data)[:6, :5], data["action"][:6, :5], data["is_first"][:6, :5]
         )

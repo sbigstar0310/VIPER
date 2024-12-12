@@ -3,8 +3,8 @@ ipdb
 pyyaml
 wandb==0.15.0
 flax==0.6.11
-tensorflow-macos>=2.9.0  # TensorFlow 버전은 JAX와 호환되는 안정된 버전을 유지
-tensorflow-metal>=0.6.0
+tensorflow-cpu==2.9.0
+tensorflow_io==0.26.0
 tensorflow_datasets
 tensorflow-io
 tensorflow_hub
@@ -23,5 +23,8 @@ rich
 ruamel.yaml==0.17.21
 tensorflow_probability
 dm_control
+PyOpenGL==3.1.7
 opencv-python-headless
 gym==0.17.3
+mujoco==2.1.5
+glfw

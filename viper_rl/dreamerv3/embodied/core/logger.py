@@ -228,7 +228,7 @@ class TensorBoardOutput(AsyncOutput):
         except (IOError, OSError) as e:
             print("GIF summaries require ffmpeg in $PATH.", e)
             tf.summary.image(name, video, step)
-
+        
 
 class WandBOutput:
     def __init__(self, pattern, logdir, config):
@@ -308,21 +308,85 @@ class MLFlowOutput:
             self._mlflow.start_run(run_name=run_name, tags=tags)
 
 
+# def _encode_gif(frames, fps):
+#     import ffmpeg
+#     h, w, c = frames[0].shape
+#     pxfmt = {1: "gray", 3: "rgb24"}[c]
+#     process = (
+#         ffmpeg
+#         .input('pipe:', format='rawvideo', s='{}x{}'.format(w, h), r=fps, pix_fmt=pxfmt)
+#         .output('pipe:', format='gif', r=fps, filter_complex="[0:v]split[x][z];[z]palettegen[y];[x]fifo[x];[x][y]paletteuse")
+#         .run_async(pipe_stdin=True, pipe_stdout=True, pipe_stderr=True)
+#     )
+#     for image in frames:
+#         process.stdin.write(image.tobytes())
+#     out, err = process.communicate()
+#     if process.returncode:
+#         print(f"ffmpeg error: {err.decode('utf8')}")
+#         raise IOError("\n".join([err.decode("utf8")]))
+#     process.stdin.close()
+#     del process
+#     return out
+
 def _encode_gif(frames, fps):
     import ffmpeg
-    h, w, c = frames[0].shape
-    pxfmt = {1: "gray", 3: "rgb24"}[c]
-    process = (
-        ffmpeg
-        .input('pipe:', format='rawvideo', s='{}x{}'.format(w, h), r=fps, pix_fmt=pxfmt)
-        .output('pipe:', format='gif', r=fps, filter_complex="[0:v]split[x][z];[z]palettegen[y];[x]fifo[x];[x][y]paletteuse")
-        .run_async(pipe_stdin=True, pipe_stdout=True, pipe_stderr=True)
-    )
-    for image in frames:
-        process.stdin.write(image.tobytes())
-    out, err = process.communicate()
-    if process.returncode:
-        raise IOError("\n".join([err.decode("utf8")]))
-    process.stdin.close()
-    del process
-    return out
+
+    try:
+        # Step 1: 프레임 데이터 확인
+        print("Step 1: Validating frames...")
+        h, w, c = frames[0].shape
+        print(f"Frame dimensions: Height={h}, Width={w}, Channels={c}, FPS={fps}")
+
+        # Step 2: 색상 형식 확인
+        if c not in [1, 3]:
+            raise ValueError(f"Unsupported number of channels: {c}")
+        pxfmt = {1: "gray", 3: "rgb24"}[c]
+
+        # Step 3: ffmpeg 프로세스 시작
+        print("Step 3: Starting ffmpeg process...")
+        process = (
+            ffmpeg
+            .input('pipe:', format='rawvideo', s=f'{w}x{h}', r=fps, pix_fmt=pxfmt)
+            .output(
+                'pipe:', format='gif', r=fps,
+                filter_complex="[0:v]split[x][z];[z]palettegen[y];[x]fifo[x];[x][y]paletteuse"
+            )
+            .run_async(pipe_stdin=True, pipe_stdout=True, pipe_stderr=True)
+        )
+
+         # 프로세스 상태 확인
+        if process.poll() is not None:
+            print(f"ffmpeg process exited prematurely with return code {process.returncode}")
+            raise IOError("ffmpeg process terminated unexpectedly")
+
+        # 프레임 전송
+        for i, image in enumerate(frames):
+            frame_data = image.tobytes()
+            expected_size = h * w * c
+            actual_size = len(frame_data)
+            print(f"Sending frame {i+1}/{len(frames)}: Expected size={expected_size}, Actual size={actual_size}")
+            if expected_size != actual_size:
+                raise ValueError(f"Frame size mismatch: {expected_size} != {actual_size}")
+            process.stdin.write(frame_data)
+            time.sleep(0.05)  # 속도 제어
+
+        # Step 5: 프로세스 종료 및 결과 확인
+        print("Step 5: Closing stdin and waiting for ffmpeg to complete...")
+        process.stdin.close()
+        out, err = process.communicate()
+
+        # Step 6: 오류 확인
+        if process.returncode:
+            print("Step 6: ffmpeg returned an error")
+            error_message = err.decode('utf8')
+            print(f"ffmpeg error log:\n{error_message}")
+            with open('ffmpeg_error.log', 'w') as log_file:
+                log_file.write(error_message)
+            raise IOError(f"ffmpeg error:\n{error_message}")
+
+        print("Step 7: ffmpeg completed successfully")
+        return out
+
+    except Exception as e:
+        print(f"Error in _encode_gif: {e}")
+        raise

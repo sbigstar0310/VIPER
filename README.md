@@ -1,3 +1,14 @@
+# VIPER + VCPE (Visual-conditioned Positional Encoding)
+
+Our method is adding "Alibi + PPE" encoding method in videoGPT model.
+Expecially, you can find our additinal code, which is commented, at "./viper_rl/videogpt/models/transformer.py".
+
+You can also find out new result from "VIPER + VCPE" model at "./viper_rl_data/policy_result"
+
+Below is the original readme context from VIPER. 
+
+THANK YOU
+
 # Video Prediction Models as Rewards for Reinforcement Learning
 
 Code for VIPER (Video Predcition Rewards), a general algorithm which leverages video prediction models as priors for Reinforcement Learning.
@@ -88,12 +99,34 @@ To train the VideoGPT, update `ae_ckpt` in `viper_rl/configs/dmc.yaml` to point 
 python scripts/train_videogpt.py -o viper_rl_data/checkpoints/dmc_videogpt_l16_s1 -c viper_rl/configs/videogpt/dmc.yaml
 ```
 
+
 ## Policy training
 
 Checkpoints for various models can be found in `viper_rl/videogpt/reward_models/__init__.py`. To use one of these video models during policy optimization, simply specify it with the `--reward_model` argument.  e.g.
 
 ```
 python scripts/train_dreamer.py --configs=dmc_vision videogpt_prior_rb --task=dmc_cartpole_balance --reward_model=dmc_clen16_fskip4 --logdir=~/logdir
+```
+
+## base-line: cartpole_balance
+```
+python scripts/train_dreamer.py --configs=dmc_vision videogpt_prior_rb --task=dmc_cartpole_balance --reward_model=dmc_clen16_fskip4 --logdir=/root/VIPER/viper_rl_data/policy_result/dmc_clen16_fskip4/cartpole_balance
+```
+
+## base-line: cartpole_swingup
+```
+python scripts/train_dreamer.py --configs=dmc_vision videogpt_prior_rb --task=dmc_cartpole_swingup --reward_model=dmc_clen16_fskip4 --logdir=/root/VIPER/viper_rl_data/policy_result/dmc_clen16_fskip4/cartpole_swingup
+```
+
+## base-line: walker_walk
+```
+python scripts/train_dreamer.py --configs=dmc_vision videogpt_prior_rb --task=dmc_cartpole_balance --reward_model=dmc_clen16_fskip4 --logdir=/root/VIPER/viper_rl_data/policy_result/dmc_clen16_fskip4/walker_walk
+```
+
+
+## custom: cartpole_balance
+```
+python scripts/train_dreamer.py --configs=dmc_vision videogpt_prior_rb --task=dmc_cartpole_balance --reward_model=dmc_custom --logdir=~VIPER/logdir/custom
 ```
 
 Custom checkpoint directories can be specified with the `$VIPER_CHECKPOINT_DIR` environment variable. The default checkpoint path is set to `viper_rl_data/checkpoints/`.

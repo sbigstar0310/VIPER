@@ -20,6 +20,9 @@ LOAD_REWARD_MODEL_DICT = {
   'dmc_clen16_fskip4': bind_videogpt_reward_model(  # Frame skip 4
     videogpt_path=get_path('dmc_videogpt_l4_s4'),
     vqgan_path=get_path('dmc_vqgan')),
+  'dmc_custom' : bind_videogpt_reward_model(  # Custom
+    videogpt_path=get_path('dmc_videogpt_l16_s1_custom'),
+    vqgan_path=get_path('dmc_vqgan')),
 
   # Atari.
   'atari_clen16_fskip1': bind_videogpt_reward_model(  # No frame skip
